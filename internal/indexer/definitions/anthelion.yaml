@@ -1,0 +1,68 @@
+---
+#id: nebulance
+name: Anthelion
+identifier: anthelion
+description: Anthelion (ANT) is a private torrent tracker for Movies
+language: en-us
+urls:
+  - https://anthelion.me
+privacy: private
+protocol: torrent
+supports:
+  - irc
+  - rss
+source: gazelle
+settings:
+  - name: api_key
+    type: secret
+    label: API key
+    help: In user settings create a new API key with Download permissions.
+
+irc:
+  network: Nebulance
+  server: irc.nebulance.cc
+  port: 6697
+  channels:
+    - "#ant-announce"
+  announcers:
+    - Sauron
+  settings:
+    - name: nickserv.account
+      type: text
+      required: true
+      label: NickServ Account
+      help: NickServ account. Make sure to group your user and bot. Eg. user|bot
+    - name: nickserv.password
+      type: secret
+      required: true
+      label: NickServ Password
+      help: NickServ password
+
+    - name: invite_command
+      type: secret
+      default: "Sauron bot ant-announce USERNAME IRCKEY"
+      required: true
+      label: Invite command
+      help: Invite auth with Sauron.
+
+
+parse:
+  type: single
+  lines:
+    - test:
+        - "[Feature Film] Some movie title (1951) [H264 / MKV / 1080p / DTS / Subs / Freeleech!] [8.38 GB - Uploader: somebody] / https://anthelion.me/torrents.php?action=download&id=3412 - horror,sci.fi"
+      pattern: '\[(.*)\] (.*) \((\d{4})\) \[(.*)\] \[(.*) - Uploader: (.*)\] / (https?:\/\/\S*/)torrents.*id=(\d+) - (\S*)'
+      vars:
+        - category
+        - torrentName
+        - year
+        - releaseTags
+        - torrentSize
+        - uploader
+        - baseUrl
+        - torrentId
+        - tags
+
+  match:
+    # "https://anthelion.me/api.php?action=download&id={torrentId}&api_key={api_key}"
+    torrenturl: "{{ .baseUrl }}api.php?action=download&id={{ .torrentId }}&api_key={{ .api_key }}"
